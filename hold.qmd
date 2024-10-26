@@ -1,0 +1,535 @@
+---
+title: "Quarto Presentations"
+subtitle: "Create beautiful interactive slide decks with Reveal.js"
+format:
+  revealjs: 
+    slide-number: true
+    chalkboard: 
+      buttons: false
+    preview-links: auto
+    logo: images/dsr-logo.png
+    css: styles.css
+    footer: <https://https://datascienceretreat.com/>
+resources:
+  - demo.pdf
+---
+
+
+## Media Backgrounds {background="#43464B" background-image="images/milky-way.jpeg"}
+
+You can also use the following as a slide background:
+
+-   An image: `background-image`
+
+-   A video: `background-video`
+
+-   An iframe: `background-iframe`
+
+::: footer
+Learn more: [Media Backgrounds](https://quarto.org/docs/presentations/revealjs/#image-backgrounds)
+:::
+
+
+##
+::: {.r-fit-text}
+Code Simplicity leads to security and productivity
+:::
+
+## Simplicity heros
+
+![](images/FabriceBellard.jpg){.absolute top=50 left=0 width="350" height="300"}
+
+![](images/georgeHotz.jpeg){.absolute top=50 right=50 width="250" height="250"}
+
+![](images/Justine.png){.absolute bottom=0  left=0 width="250" height="250"}
+
+![](images/georgi.jpeg){.absolute bottom=0 right=50 width="300" height="300"}
+
+## Hello, There
+
+This presentation will show you examples of what you can do with Quarto and [Reveal.js](https://revealjs.com), including:
+
+-   Presenting code and LaTeX equations
+-   Including computations in slide output
+-   Image, video, and iframe backgrounds
+-   Fancy transitions and animations
+-   Printing to PDF
+
+...and much more
+
+## Code Animations {auto-animate="true"}
+
+-   Over 20 syntax highlighting themes available
+-   Default theme optimized for accessibility
+
+
+## Media Backgrounds {background="#43464B" background-image="images/milky-way.jpeg"}
+
+You can also use the following as a slide background:
+
+-   An image: `background-image`
+
+-   A video: `background-video`
+
+-   An iframe: `background-iframe`
+
+::: footer
+Learn more: [Media Backgrounds](https://quarto.org/docs/presentations/revealjs/#image-backgrounds)
+:::
+
+
+:::
+
+## Line Highlighting
+
+-   Highlight specific lines for emphasis
+-   Incrementally highlight additional lines
+
+``` {.python code-line-numbers="4-5|7|10"}
+import numpy as np
+import matplotlib.pyplot as plt
+
+r = np.arange(0, 2, 0.01)
+theta = 2 * np.pi * r
+fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+ax.plot(theta, r)
+ax.set_rticks([0.5, 1, 1.5, 2])
+ax.grid(True)
+plt.show()
+```
+
+::: footer
+Learn more: [Line Highlighting](https://quarto.org/docs/presentations/revealjs/#line-highlighting)
+:::
+
+# Benchmarks
+
+## Benchmark 1: simple C program
+```markdown 
+**Context:** 
+Create a Nix expression to package a simple C program that consists of a
+single file, `hello.c`, which prints "Hello, World!" to the terminal. Assume
+you are working in a pure Nix environment where no system packages are
+available except for the ones you declare in your Nix expression. You are
+required to define all dependencies, including the C compiler, explicitly.  
+ 
+ **Task:** Write a Nix expression that fetches the `hello.c` file from a remote
+GitHub repository, compiles it using the GCC compiler, and packages the
+resulting binary. Ensure that the final derivation produces an executable
+called `hello`.
+ 
+ **Canonical Answer Requirements:** The solution must:
+ 1. Fetch `hello.c` from a URL using the `fetchurl` function or a similar
+    mechanism.
+ 2. Use `gcc` from the Nixpkgs repository to compile the C code.
+ 3. Ensure that the output of the derivation is an executable called `hello`.
+ 4. Be minimal, using only the necessary dependencies.
+
+ **Hint:** You may need to create a derivation that compiles and links the C
+ code. Look into using `stdenv.mkDerivation`.  
+ ```
+## Benchmark 1: simple C program nixdoc-chat
+```markdown 
+To create a Nix expression to package a simple C program, you can follow these steps:
+
+1. Define a derivation to compile and link the C code using `stdenv.mkDerivation`.
+2. Fetch the `hello.c` file from a URL using the `fetchurl` function.
+3. Use the `gcc` compiler from the Nixpkgs repository to compile the C code.
+4. Ensure that the output of the derivation is an executable called `hello`.
+
+Here's the Nix expression to package the simple C program:
+```
+```nix
+{ stdenv, fetchurl, gcc }:
+
+let
+  helloSource = fetchurl "https://github.com/yourusername/yourrepository/raw/main/hello.c";
+in
+stdenv.mkDerivation {
+  name = "hello";
+  src = [ helloSource ];
+  builder = gcc {
+    version = "10.3.0";
+    flags = [ "-o", "hello", "-std=c11" ];
+    files = [ "hello.c" ];
+  };
+}
+```
+```markdown 
+Replace `yourusername` and `yourrepository` with the appropriate GitHub username and repository name for the `hello.c` file. This Nix expression defines a derivation named `hello` that fetches the `hello.c` file from the specified URL, compiles it using the `gcc` compiler from the Nixpkgs repository, and produces an executable called `hello`.</s>"
+```
+
+## Benchmark 1: simple C program chatGPT
+```nix
+{ pkgs ? import <nixpkgs> {} }:
+
+pkgs.stdenv.mkDerivation {
+  pname = "hello";
+  version = "1.0";
+
+  # Fetch the hello.c file from a remote URL
+  src = pkgs.fetchurl {
+    url = "https://github.com/user/repo/raw/main/hello.c";
+    sha256 = "<replace-with-correct-sha256>";
+  };
+
+  # Specify dependencies (gcc for compilation)
+  buildInputs = [ pkgs.gcc ];
+
+  # Build process
+  buildPhase = ''
+    gcc -o hello ${src}
+  '';
+
+  # Install the resulting executable
+  installPhase = ''
+    mkdir -p $out/bin
+    cp hello $out/bin/
+  '';
+
+  meta = with pkgs.lib; {
+    description = "A simple program that prints 'Hello, World!'";
+    license = licenses.mit;
+    maintainers = [ maintainers.yourname ];
+  };
+}
+```
+
+
+
+
+## Benchmark 2: Override a package from Nixpkgs to use a specific version
+```markdown 
+**Context:** You are managing a project using Nix and you need to
+override the version of `wget` to a specific version (`1.21.1`), as the latest
+version introduces a bug that affects your use case. The package should still
+be fetched from Nixpkgs, but you need to make sure that all the dependencies
+and build instructions follow the normal `wget` derivation from the repository,
+except for the version.
+ 
+ **Task:** Write a Nix expression that imports Nixpkgs, overrides the version
+of `wget` to `1.21.1`, and installs it. Ensure that your derivation properly
+fetches and builds the specified version of `wget` from the source code, while
+maintaining compatibility with Nixpkgs.
+
+ **Canonical Answer Requirements:** The solution must:
+ 1. Import Nixpkgs and override the version of `wget` within it.
+ 2. Use the `overrideAttrs` or similar mechanism to adjust the derivation's
+    attributes while keeping other dependencies intact.
+ 3. Ensure the correct source code for `wget` version 1.21.1 is fetched and
+    built.
+
+ **Hint:** You can find `wget`’s attributes in Nixpkgs, and you may need to
+modify the `src` attribute and hash for fetching the correct source.  ```
+```
+
+## Benchmark 2: Override a package from Nixpkgs to use a specific version nixdoc
+```nix
+let
+  pkgs = import <nixpkgs> { } ;
+  wget = pkgs.fetchFromGitHub {
+    name = "wget" ;
+    version = "1.21.1" ;
+    owner = "gnuwget" ;
+    repo = "wget" ;
+    url = "https://github.com/gnuwget/wget.git" ;
+    hash = "sha256-<your_hash_here>" ;
+  } ;
+in
+{
+  name = "my-wget" ;
+  description = "My custom version of wget" ;
+  inputs = {
+    input = wget ;
+    inherit pkgs ;
+  } ;
+  outputs = {
+    auto = self : input {
+      version = version ;
+    } ;
+  } ;
+}
+```
+``` markdown
+Replace `<your_hash_here>` with the hash of the `wget` version 1.21.1 commit you want to use. This expression imports Nixpkgs, overrides the `wget` derivation with a new one that fetches the specified version from the source code, and installs it while keeping other dependencies intact. The `inputs` attribute ensures that the new derivation depends on the original `wget` derivation from Nixpkgs. The `outputs` attribute renames the output derivation to `auto` and sets its `version` attribute to the overridden version.</s>"
+```
+
+
+## Benchmark 2: Override a package from Nixpkgs to use a specific version gpt
+```nix
+{ pkgs ? import <nixpkgs> {} }:
+
+let
+  wget_1_21_1 = pkgs.wget.overrideAttrs (oldAttrs: {
+    version = "1.21.1";
+    src = pkgs.fetchurl {
+      url = "https://ftp.gnu.org/gnu/wget/wget-${version}.tar.gz";
+      sha256 = "0i08yx2ip6fr3jz3xbfsfp3yrsmys4i6f5vh0q44wgwl9lni46a3"; # Replace with actual hash if needed
+    };
+  });
+in
+  wget_1_21_1
+```
+
+```markdown
+Explanation
+Importing Nixpkgs: The { pkgs ? import <nixpkgs> {} } imports Nixpkgs, which gives us access to the default packages.
+Override wget with overrideAttrs:
+version = "1.21.1"; specifies the new version for wget.
+src = pkgs.fetchurl { ... }; points to the specific tarball URL for wget version 1.21.1 from GNU’s official repository.
+sha256 needs to match the hash of the downloaded file for verification. Replace the hash if it differs for the specified version.
+Usage
+Save the expression in a file (e.g., wget-1.21.1.nix) and install it by running:
+
+bash
+nix-build wget-1.21.1.nix
+Or, if you want to use it in an environment:
+
+bash
+nix-shell wget-1.21.1.nix
+This expression ensures that Nixpkgs uses the specified version of wget, keeping the build process and dependencies aligned with the default derivation.
+```
+
+
+
+## Benchmark 3: Create a reproducible development env, numpy pandas matplotlib
+```markdown
+ **Context:** You are working on a Python project that requires Python 3.8 and the following libraries: `numpy`, `pandas`, and `matplotlib`. You want to use Nix to create a reproducible development environment where the exact versions of these libraries are pinned, ensuring that all contributors to the project have the same environment.
+
+ **Task:** Write a Nix expression to create a `shell.nix` file that provides a development environment with Python 3.8 and the specified libraries. Make sure the environment can be entered using `nix-shell` and allows running Python with the correct versions of the libraries available.
+
+ **Canonical Answer Requirements:** The solution must:
+ 1. Use a specific Python 3.8 interpreter from Nixpkgs.
+ 2. Include `numpy`, `pandas`, and `matplotlib` in the environment.
+ 3. Ensure that the versions of the libraries are locked to specific versions (e.g., `numpy` 1.20.3, `pandas` 1.2.4, `matplotlib` 3.4.2).
+ 4. Allow users to enter the development environment using `nix-shell`.
+
+ **Hint:** Look into using `buildInputs` and `python38.withPackages` for managing Python dependencies.
+```
+
+
+## benchmark 4 ngix prompt
+```markdown
+*Context:* You are setting up a NixOS system and need to configure it 
+to run as a web server with the following requirements:
+
+The server should run Nginx.
+It should have a user called admin with sudo privileges.
+The server should be accessible via SSH with the public key authentication 
+for the admin user.
+*Task:* Write a NixOS configuration that defines these requirements. 
+Assume you are working in a fresh NixOS installation with no existing configuration. 
+The configuration should:
+
+Install and configure Nginx to start at boot.
+Create an admin user with sudo privileges.
+Configure SSH to allow public key authentication for the admin user.
+Canonical Answer Requirements: The solution must:
+
+Use NixOS’s configuration.nix format.
+Install and enable Nginx.
+Define a user admin with sudo access.
+Configure SSH with public key authentication.
+*Hint:* Refer to NixOS modules for services.nginx and services.openssh.
+```
+
+## benchmark 4 ngix chat-nixdoc
+
+```nix
+{ config, pkgs, ... }:
+
+let
+  nginxConfig = pkgs.nginx.config;
+  opensshConfig = pkgs.openssh.config;
+
+in
+
+{ services.nginx = {
+    enable = true;
+    config = nginxConfig;
+  };
+
+  users.admin = {
+    name = "admin";
+    isManaged = true;
+    password = "password";
+    sudo = {
+      allow = [ "ALL" ];
+    };
+  };
+
+  system.ssh.authorizedKeys = {
+    enable = true;
+    keys = [
+      opensshConfig.serverKeys.key1.publicKey
+    ];
+  };
+
+  system.ssh.authorizedKeys.key1 = {
+    name = "key1";
+    publicKey = "YOUR_PUBLIC_KEY_HERE";
+  };
+}
+```
+
+## benchmark 4 ngix chat-GPT 4o
+
+```nix
+{ config, pkgs, ... }:
+
+{
+  # Basic system configuration
+  imports = [ ];
+  
+  # Enable Nginx and configure it to start on boot
+  services.nginx = {
+    enable = true;
+    # Optionally configure the default server or other options here
+  };
+
+  # Create the admin user with sudo privileges
+  users.users.admin = {
+    isNormalUser = true;
+    description = "Admin User";
+    extraGroups = [ "wheel" ];  # Allows sudo access for the admin user
+    openssh.authorizedKeys.keys = [
+      "ssh-rsa AAAAB3...your-public-key-here... user@host"
+    ];
+  };
+
+  # Enable SSH and configure it for public key authentication
+  services.openssh = {
+    enable = true;
+    permitRootLogin = "no";  # Disable root login for security
+    passwordAuthentication = false;  # Disable password authentication
+  };
+
+  # Allow members of the wheel group to use sudo
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = false;  # Admin users in the wheel group won't need a password for sudo
+  };
+
+  # Networking configuration
+  networking.firewall.allowedTCPPorts = [ 22 80 ];  # Open ports for SSH and HTTP
+  networking.hostName = "web-server";  # Set a hostname for the server
+
+  # Define other system-wide settings if necessary
+}
+```
+
+
+## Benchmark 5: Nix function for reusable packages
+```markdown
+ **Context:** You need to create multiple packages with slight variations in their dependencies. For example, imagine packaging versions of the `hello` program, but one variant depends on `libA` and the other on `libB`. To avoid code duplication, you want to create a Nix function that generalizes the build and dependency declaration, allowing you to define `helloWithLibA` and `helloWithLibB` packages by calling your custom function.
+ 
+ **Task:** Write a Nix expression that defines a function `helloWithLib` which takes a library package as an argument and produces a `hello` package with that library as a dependency. Then, use this function to define two packages: `helloWithLibA` and `helloWithLibB`, where `LibA` and `LibB` are fictional dependencies.
+ 
+ **Canonical Answer Requirements:** The solution must:
+ 1. Define a Nix function that accepts a dependency (e.g., `lib`) and packages `hello` with it.
+ 2. Demonstrate the use of the function by creating two derivations: `helloWithLibA` and `helloWithLibB`.
+ 3. Use fictional libraries like `libA` and `libB` to demonstrate functionality.
+
+ **Hint:** Explore Nix functions and parameterization to achieve a reusable package definition.
+```
+
+
+## Benchmark 6: Pin Nixpkgs for a stable development environment
+```markdown
+ **Context:** You’re working on a project where you want to ensure the exact versions of dependencies remain consistent across all builds. This means pinning Nixpkgs to a specific commit. You’re tasked with defining a `shell.nix` file that imports a pinned version of Nixpkgs to maintain a stable, reproducible environment for future builds.
+ 
+ **Task:** Write a `shell.nix` expression that:
+ 1. Fetches a specific Nixpkgs commit (e.g., `c3f6bf2b2e9`) from GitHub.
+ 2. Sets up an environment with Python 3.9 and `requests` library pinned to the versions available in this Nixpkgs commit.
+ 
+ **Canonical Answer Requirements:** The solution must:
+ 1. Use `fetchTarball` or `fetchFromGitHub` to pin Nixpkgs to the specified commit.
+ 2. Set up a Python environment with Python 3.9 and `requests` from the pinned Nixpkgs.
+ 3. Be fully reproducible, allowing anyone to replicate the environment by using `nix-shell`.
+
+ **Hint:** You can use `import` with a custom path to load a specific Nixpkgs version.
+```
+
+## Benchmark 7: Implement a NixOS module for a simple HTTP service
+```markdown
+ **Context:** You need to deploy a small HTTP server written in Python to NixOS. The server code is a single file (`server.py`) that listens on port 8080 and serves "Hello, Nix!". You are asked to package this service, create a NixOS module to manage it, and configure the module to automatically start on boot.
+
+ **Task:** Write a NixOS module that:
+ 1. Packages `server.py` in a custom Nix derivation.
+ 2. Defines a NixOS module that creates a systemd service to manage the HTTP server.
+ 3. Configures the service to start at boot and listens on port 8080.
+
+ **Canonical Answer Requirements:** The solution must:
+ 1. Define a derivation to package the `server.py` script.
+ 2. Set up a systemd service in the NixOS module to manage the HTTP server.
+ 3. Ensure the service listens on port 8080 and starts automatically on boot.
+
+ **Hint:** Review `systemd.services` configuration in NixOS modules to see how to define custom services.
+```
+
+## Benchmark 8: Create a Nix derivation that packages a Haskell project
+```markdown
+ **Context:** You have a Haskell project with a `default.nix` generated by `cabal2nix`, but it needs to be modified to build correctly in Nix. The project relies on the Haskell package `text`, and it should build successfully without any manual intervention in a Nix environment. You need to write a `default.nix` file that pulls in the necessary dependencies and builds the Haskell package.
+
+ **Task:** Create a `default.nix` file that:
+ 1. Uses `cabal2nix` output as a starting point for the package definition.
+ 2. Specifies `text` as a dependency.
+ 3. Ensures the package builds without errors.
+
+ **Canonical Answer Requirements:** The solution must:
+ 1. Use `haskellPackages.callCabal2nix` or `haskellPackages.mkDerivation` to define the package.
+ 2. Include `text` as a dependency and ensure the derivation compiles successfully.
+ 3. Work without additional manual setup outside of Nix.
+
+ **Hint:** Look into Nixpkgs' Haskell infrastructure to manage dependencies and builds.
+```
+
+## Benchmark 9: Generate a Docker image with Nix
+```markdown
+ **Context:** You need to create a Docker image for a Go application using Nix. The application is a single Go file that builds into a static binary called `app`. You must write a Nix expression that compiles this Go application and produces a minimal Docker image containing only the compiled binary.
+
+ **Task:** Write a Nix expression that:
+ 1. Fetches the Go source code from a URL.
+ 2. Compiles the Go application into a static binary.
+ 3. Produces a minimal Docker image containing only the binary.
+
+ **Canonical Answer Requirements:** The solution must:
+ 1. Use `dockerTools.buildImage` or `dockerTools.buildLayeredImage` to produce the Docker image.
+ 2. Ensure the resulting Docker image contains only the static binary.
+ 3. Be reproducible and self-contained.
+
+ **Hint:** Look into `dockerTools` for building Docker images directly from Nix expressions.
+```
+
+## Benchmark 10: Cross-compilation with Nix for a different architecture
+```markdown
+ **Context:** You have a Rust project that needs to be compiled for the ARMv7 architecture (such as a Raspberry Pi). You want to use Nix to cross-compile the project while developing on an x86_64 machine.
+
+ **Task:** Write a Nix expression that:
+ 1. Fetches a Rust project from GitHub.
+ 2. Cross-compiles the project to target ARMv7.
+ 3. Produces a binary that can run on an ARMv7 architecture.
+
+ **Canonical Answer Requirements:** The solution must:
+ 1. Use the appropriate Rust toolchain and configure cross-compilation in the Nix expression.
+ 2. Target the ARMv7 architecture explicitly.
+ 3. Produce a binary that is runnable on an ARMv7 device.
+
+ **Hint:** Check Nixpkgs documentation on cross-compilation and Rust support for ARM architectures.
+```
+
+
+## Media Backgrounds {background="#43464B" background-image="images/milky-way.jpeg"}
+
+You can also use the following as a slide background:
+
+-   An image: `background-image`
+
+-   A video: `background-video`
+
+-   An iframe: `background-iframe`
+
+::: footer
+Learn more: [Media Backgrounds](https://quarto.org/docs/presentations/revealjs/#image-backgrounds)
+:::
+
